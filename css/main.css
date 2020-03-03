@@ -1,0 +1,28 @@
+body{
+    background:#0F0E4A;
+}
+main{
+    height:100vh;
+}
+h1{
+    font-family: 'Abril Fatface';
+    font-size:4em;
+    letter-spacing: 1px;
+}
+
+a{
+    text-decoration: none;
+}
+button{
+    font-size:1.75em!important;
+    border-radius:2em!important;;
+}
+
+
+
+
+@media only screen and (max-width: 600px){
+h1{
+    font-size: 3em;
+}
+}
