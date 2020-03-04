@@ -21,6 +21,20 @@ for (var i = 0; i < ROWS; i++) {
     }
 }
 
+const BLACK = document.createElement('div');
+const RED = document.createElement('div');
+const YELLOW = document.createElement('div');
+
+BLACK.classList.add('piece');
+BLACK.classList.add('bg-black');
+
+YELLOW.classList.add('piece');
+YELLOW.classList.add('bg-yellow');
+
+RED.classList.add('piece');
+RED.classList.add('bg-red');
+draw_board(board);
+
 console.log(board);
 
 function drop_piece(board,row,col,piece){
@@ -65,153 +79,16 @@ function win(board,piece){
     }
 }
 
-function calculate_score(slide,piece){
-    var score = 0;
-    var opp_piece = HUMAN_PIECE;
-    var count=0;
-    var countEmpty=0;
-    var countOpp = 0;
-
-    if(piece==HUMAN_PIECE){
-        opp_piece = COMP_PIECE;
-    }
-
-    for (var i = 0; i<slide.length;++i){
-        if(slide[i]==piece){
-            count++;
-        }
-        if(slide[i]==EMPTY){
-            countEmpty++;
-        }
-        if(slide[i]==opp_piece){
-            countOpp++;
-        }
-    }
-
-    if (count==4){
-        score+=10000000;
-    }else if(count==3 && countEmpty==1){
-        score+=10;
-    }else if(count==2 && countEmpty==2){
-        score+=2;
-    }
-
-    if (countOpp==3 && countEmpty==1){
-        score-=10;
-    }
-    return score
-}
-
-function score_position(board,piece){
-    var score=0;
-
-    // horizontal
-    for (var r=0;r<ROWS;r++){
-        var rows = board[r];
-        for(var c=0;c<COLUMNS-3;c++){
-            var slide = rows.slice(c,c+4);
-            score+=calculate_score(slide,piece);
-        }
-    }
-
-    // vertical
-    for (var c=0;c<COLUMNS;c++){
-        var cols=[];
-        for(var row=0;row<ROWS;row++){
-            cols.push(board[row][c]);
-        }
-
-        for(var r=0;r<ROWS-3;r++){
-            var slide = cols.slice(r,r+4);
-            score+=calculate_score(slide,piece);
-        }
-    }
-
-    // positive
-    for (var r=0;r<ROWS-3;r++){
-        for(var c=0;c<COLUMNS-3;c++){
-            var slide=[];
-            for(var i=0;i<4;i++){
-                slide.append(board[r+i][c+i]);
-            }
-            score+=calculate_score(slide,piece);
-        }
-    }
-
-    // negative
-    for (var r=0;r<ROWS;r++){
-        for(var c=0;c<COLUMNS-3;c++){
-            var slide=[];
-            for(var i=0;i<4;i++){
-                slide.append(board[r-i][c+i]);
-            }
-            score+=calculate_score(slide,piece);
-        }
-    }
-
-    return score;
-}
 
 function game_over(board){
-    if(win(board,HUMAN_PIECE) || win(board,COMP_PIECE) || len(get_valid_moves(board))==0){
+    if(win(board,HUMAN_PIECE) || win(board,COMP_PIECE) || get_valid_moves(board).length==0){
         return true;
     }else{
         return false;
     }
 }
 
-function minimax(board,depth,maximizingPlayer){
-    var valid_locations = get_valid_moves(board);
-    var gameover=game_over(board);
 
-    if (depth==0){
-        return false,score_position(board,COMP_PIECE);
-    }
-
-    if(gameover){
-        if (win(board,COMP_PIECE)){
-            return [false, Infinity];
-        }else if(win(board,HUMAN_PIECE)){
-            return [false,-Infinity];
-        }else{
-            return [false,0];
-        }
-    }
-//  comp is maximizing player
-    if (maximizingPlayer){
-        var max_score = -Infinity;
-        var index = Math.floor(Math.random() * valid_locations.length);
-        var column=valid_locations[index];
-        for(var col=0;col<valid_locations.length;col++){
-            var row=next_free_pos(board,valid_locations[col]);
-            let b_copy = JSON.parse(JSON.stringify(board));
-            drop_piece(b_copy,row,col,COMP_PIECE);
-            var new_score=minimax(b_copy,depth-1,false)[0];
-            if (new_score > max_score){
-                max_score = new_score;
-                column = col;
-            }
-        }
-        return [column, max_score];
-    }else{
-        var min_score = Infinity;
-        var index = Math.floor(Math.random() * valid_locations.length);
-        var column=valid_locations[index];
-        for(var col=0;col<valid_locations.length;col++){
-            var row=next_free_pos(board,valid_locations[col]);
-            let b_copy = JSON.parse(JSON.stringify(board));
-            drop_piece(b_copy,row,col,COMP_PIECE);
-            var new_score=minimax(b_copy,depth-1,true)[0];
-            if (new_score > max_score){
-                max_score = new_score;
-                column = col;
-            }
-        }
-        return [column,min_score];
-    }
-
-
-}
 
 function get_valid_moves(board){
     var valid_locations=[];
@@ -236,14 +113,32 @@ function next_free_pos(board,col){
 }
 
 function draw_board(board){
+    var doc_board = document.getElementById('board');
+    doc_board.innerHTML='';
+
+    for(var r=0; r<ROWS;r++){
+        for(var c=0;c<COLUMNS;c++){
+            if(board[r][c]==EMPTY){
+                doc_board.appendChild(BLACK.cloneNode(true));
+                console.log('black');
+
+            }else if(board[r][c]==HUMAN_PIECE){
+                doc_board.appendChild(RED.cloneNode(true));
+            }else if(board[r][c]==COMP_PIECE){
+                doc_board.appendChild(YELLOW.cloneNode(true));
+            }
+        }
+    }
 
 }
 
-function human_turn(board){
+function human_turn(board,pos){
     var turn =HUMAN;
+    // var posx = event.offsetX;
     var play_game=true;
-    var posx = event.clientX;
-    col = Math.floor(posx/SQUARESIZE);
+    col = Math.floor(Number(pos)/SQUARESIZE);
+    console.log(pos)
+
 
     if (is_valid_location(board,col)){
         var row = next_free_pos(board,col);
@@ -251,6 +146,7 @@ function human_turn(board){
 
         if (win(board,HUMAN_PIECE)){
             play_game=false;
+            winner="RED";
         }
 
         turn=COMP;
@@ -260,11 +156,10 @@ function human_turn(board){
     return [turn,play_game];
 
 }
-
-function comp_turn(board){
-    var turn=COMP;
+function human2_turn(board,pos){
+    var turn =COMP;
     var play_game=true;
-    col = minimax(board,4,true);
+    col = Math.floor(pos/SQUARESIZE);
 
     if (is_valid_location(board,col)){
         var row = next_free_pos(board,col);
@@ -272,10 +167,218 @@ function comp_turn(board){
 
         if (win(board,COMP_PIECE)){
             play_game=false;
+            winner="YELLOW";
         }
 
         turn=HUMAN;
         draw_board(board);
     }
 
+    return [turn,play_game];
+
 }
+
+
+
+function getPos(event){
+
+}
+var play_game=true;
+var pos;
+var winner;
+var turn=HUMAN;
+var screenOffset = (screen.width-700)/2;
+
+
+function play_turn(event){
+    pos=event.clientX-screenOffset;
+
+    if (turn==HUMAN){
+        var all =human_turn(board,pos);
+        turn=all[0];
+        play_game=all[1];
+    }
+    else if(turn==COMP){
+        var all = human2_turn(board,pos);
+        turn=all[0];
+        play_game=all[1]
+    }
+    if (!play_game){
+
+        popup();
+    }
+}
+function popup(){
+
+    var p = document.getElementById('winner');
+    var tiptxt=document.createTextNode(winner + ' wins!');
+    p.appendChild(tiptxt);
+
+    var pop=document.getElementById('pop');
+    pop.classList.remove('dn');
+}
+function hide(){
+    window.location.href = './home.html';
+}
+
+
+// ai functions:====================================================
+
+// function calculate_score(slide,piece){
+//     var score = 0;
+//     var opp_piece = HUMAN_PIECE;
+//     var count=0;
+//     var countEmpty=0;
+//     var countOpp = 0;
+
+//     if(piece==HUMAN_PIECE){
+//         opp_piece = COMP_PIECE;
+//     }
+
+//     for (var i = 0; i<slide.length;++i){
+//         if(slide[i]==piece){
+//             count++;
+//         }
+//         if(slide[i]==EMPTY){
+//             countEmpty++;
+//         }
+//         if(slide[i]==opp_piece){
+//             countOpp++;
+//         }
+//     }
+
+//     if (count==4){
+//         score+=10000000;
+//     }else if(count==3 && countEmpty==1){
+//         score+=10;
+//     }else if(count==2 && countEmpty==2){
+//         score+=2;
+//     }
+
+//     if (countOpp==3 && countEmpty==1){
+//         score-=10;
+//     }
+//     return score
+// }
+
+// function score_position(board,piece){
+//     var score=0;
+
+//     // horizontal
+//     for (var r=0;r<ROWS;r++){
+//         var rows = board[r];
+//         for(var c=0;c<COLUMNS-3;c++){
+//             var slide = rows.slice(c,c+4);
+//             score+=calculate_score(slide,piece);
+//         }
+//     }
+
+//     // vertical
+//     for (var c=0;c<COLUMNS;c++){
+//         var cols=[];
+//         for(var row=0;row<ROWS;row++){
+//             cols.push(board[row][c]);
+//         }
+
+//         for(var r=0;r<ROWS-3;r++){
+//             var slide = cols.slice(r,r+4);
+//             score+=calculate_score(slide,piece);
+//         }
+//     }
+
+//     // positive
+//     for (var r=0;r<ROWS-3;r++){
+//         for(var c=0;c<COLUMNS-3;c++){
+//             var slide=[];
+//             for(var i=0;i<4;i++){
+//                 slide.push(board[r+i][c+i]);
+//             }
+//             score+=calculate_score(slide,piece);
+//         }
+//     }
+
+//     // negative
+//     for (var r=3;r<ROWS;r++){
+//         for(var c=0;c<COLUMNS-3;c++){
+//             var slide=[];
+//             for(var i=0;i<4;i++){
+//                 slide.push(board[r-i][c+i]);
+//             }
+//             score+=calculate_score(slide,piece);
+//         }
+//     }
+
+//     return score;
+// }
+
+// function minimax(board,depth,maximizingPlayer){
+//     var valid_locations = get_valid_moves(board);
+//     var gameover=game_over(board);
+
+//     if (depth==0){
+//         return false,score_position(board,COMP_PIECE);
+//     }
+
+//     if(gameover){
+//         if (win(board,COMP_PIECE)){
+//             return [false, Infinity];
+//         }else if(win(board,HUMAN_PIECE)){
+//             return [false,-Infinity];
+//         }else{
+//             return [false,0];
+//         }
+//     }
+// //  comp is maximizing player
+//     if (maximizingPlayer){
+//         var max_score = -Infinity;
+//         var index = Math.floor(Math.random() * valid_locations.length);
+//         var column=valid_locations[index];
+//         for(var col=0;col<valid_locations.length;col++){
+//             var row=next_free_pos(board,valid_locations[col]);
+//             let b_copy = JSON.parse(JSON.stringify(board));
+//             drop_piece(b_copy,row,col,COMP_PIECE);
+//             var new_score=minimax(b_copy,depth-1,false)[0];
+//             if (new_score > max_score){
+//                 max_score = new_score;
+//                 column = col;
+//             }
+//         }
+//         return [column, max_score];
+//     }else{
+//         var min_score = Infinity;
+//         var index = Math.floor(Math.random() * valid_locations.length);
+//         var column=valid_locations[index];
+//         for(var col=0;col<valid_locations.length;col++){
+//             var row=next_free_pos(board,valid_locations[col]);
+//             let b_copy = JSON.parse(JSON.stringify(board));
+//             drop_piece(b_copy,row,col,COMP_PIECE);
+//             var new_score=minimax(b_copy,depth-1,true)[0];
+//             if (new_score > max_score){
+//                 max_score = new_score;
+//                 column = col;
+//             }
+//         }
+//         return [column,min_score];
+//     }
+
+
+// }
+// function comp_turn(board){
+//     var turn=COMP;
+//     var play_game=true;
+//     col = minimax(board,2,true);
+
+//     if (is_valid_location(board,col)){
+//         var row = next_free_pos(board,col);
+//         drop_piece(board,row,col,COMP_PIECE);
+
+//         if (win(board,COMP_PIECE)){
+//             play_game=false;
+//         }
+
+//         turn=HUMAN;
+//         draw_board(board);
+//     }
+//     return [turn,play_game];
+
+// }

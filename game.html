@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Connect Four - Play</title>
+    <link rel="stylesheet" href="https://unpkg.com/tachyons/css/tachyons.min.css">
     <link href="https://fonts.googleapis.com/css?family=Abril+Fatface|Lora&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="./css/main.css">
 </head>
 <body>
-    <main class='container text-center'>
-        <div class='game'>
+    <main class='flex items-center justify-center'>
+        <div class='game bg-black flex items-end shadow-2' onclick="play_turn(event)">
+            <div class='board bg-blue flex flex-wrap-reverse w-100' id='board'>
+
+
+            </div>
 
         </div>
+        <div class='dn fixed top-0 vh-100-ns w-100-ns bgop tc' id='pop' onclick="hide()">
+            <div class='pa2 pa4-ns shadow-2 br4 tc w-third dib bg-white mt5' >
+                <p class='' id='winner'> </p>
+            </div>
+        </div>
     </main>
-
+<script type="text/javascript" src='./js/index.js'></script>
 </body>
 </html>
