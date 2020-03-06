@@ -218,7 +218,7 @@ function popup(){
     pop.classList.remove('dn');
 }
 function hide(){
-    window.location.href = './home.html';
+    window.location.href = './index.html';
 }
 
 
