@@ -70,7 +70,7 @@ function win(board,piece){
     }
 
     // negative slope win
-    for (var c = 3; c<COLUMNS-3; c++){
+    for (var c = 0; c<COLUMNS-3; c++){
         for (var r = 3; r<ROWS;r++){
             if (board[r][c] == piece && board[r-1][c+1] == piece && board[r-2][c+2] == piece && board[r-3][c+3] == piece){
                 return true;
